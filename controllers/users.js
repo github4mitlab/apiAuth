@@ -44,6 +44,6 @@ module.exports = {
         });
     },
     secret: async (req, res, next) => {
-        console.log("Secret");
+        console.log("인증되었습니다.");
     }
 };
