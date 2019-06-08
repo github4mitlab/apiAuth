@@ -7,10 +7,6 @@ const userController = require("../controllers/users");
 router.post("/signup", userController.singUp);
 router.post("/signin", userController.singIn);
 router.get("/secret", userController.secret);
-// router.route("/singin")
-//     .post(userController.singIn);
 
-// router.route("/secret")
-//     .get(userController.secret);
 
 module.exports = router;
