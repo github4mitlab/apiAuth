@@ -29,12 +29,52 @@ const userSchema = new Schema({
         }
     },
     google: {
-        
+        id: {
+            type: String,
+        },
+        email: {
+            type: String,
+            lowercase: true
+        }
     },
     facebook: {
-
+        id: {
+            type: String,
+        },
+        email: {
+            type: String,
+            lowercase: true
+        }
     }
 });
+
+
+userSchema.pre('save', async function(next) {
+    try{
+        console.log("Entered");
+        if(this.method !== 'local') {
+            next();
+        }
+
+        // Generate a Salt
+        const salt = await bcrypt.genSalt(10);
+        const passwordHash = await bcrypt.hash(thih.local.password, salt);
+        this.local.password = passwordHash;
+        next();
+    }
+    catch(error) {
+        next(error);
+    };
+});
+
+userSchema.methods.isValidPassword = async function(newPassword) {
+    try{
+        return await bcrypt.compare(newPassword, this.local.password);
+    }
+    catch(error){
+        throw new Error(error);
+    }
+}
 
 
 // Create a Model

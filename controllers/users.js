@@ -46,5 +46,11 @@ module.exports = {
     },
     secret: async (req, res, next) => {
         console.log("인증되었습니다.");
+    },
+
+    googleOauth: async(req, res, next) => {
+        console.log('got here');
+        
     }
+
 };
