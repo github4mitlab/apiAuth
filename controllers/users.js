@@ -6,25 +6,29 @@ const { JWT_SECRET } = require("../config");
 signToken = user => {
     return JWT.sign({
         iss: "mayLee",
-        sub: user.id,
+        sub: userModel._id,
         iat: new Date().getTime(),
-        exp: new Date().setDate(new Date().getDate() +1) // 현재 시간 더하기 하루
+        exp: new Date().setDate(new Date().getDate() + 1) // 현재 시간 더하기 하루
     }, JWT_SECRET);
 };
 
 module.exports = {
     singUp: async (req, res, next) => {
         const { email, password } = req.body; 
-        const foundUser = await userModel.findOne({email});
+        const foundUser = await userModel.findOne({"local.email" : email});
         if(foundUser) {
             return res.status(403).json({ error: "Email is already in use"});
         }
         //Create a new user
-        const newUser = new userModel({ email, password});
+        const newUser = new userModel({ 
+            email : email, 
+            password : password
+        });
         await newUser.save();
 
         // Generate the token
         const token = signToken(newUser);
+
 
         // Respond with token : 파싱확인은 https://jwt.io/
         res.status(200).json({
@@ -32,15 +36,12 @@ module.exports = {
         });
     },
     singIn: async (req, res, next) => {
-        // console.log("SignIn");
-        const loginInfo = {
-            email: req.body.email,
-            password: req.body.password
-        };
 
+        const token = signToken(req.user);
+        console.log(token);
         res.status(200).json({
-           msg : "Success" ,
-           loginInfo: loginInfo
+           msg : "Success",
+           token: token
         });
     },
     secret: async (req, res, next) => {
