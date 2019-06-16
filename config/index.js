@@ -6,8 +6,9 @@ module.exports = {
             clinetSecret: 'xP6kVE27a72jTuM14jND88Bf'
         },
         facebook: {
-            clientID: '',
-            clinetSecret: ''
+            //https://developers.facebook.com/
+            clientID: '665623647240121',
+            clinetSecret: '687debb3d95ade16f22ffe5f78f4e714'
         }
     }
 };

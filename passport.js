@@ -5,6 +5,7 @@ const LocalStrategy = require("passport-local").Strategy;
 const config = require("./config");
 const userModel = require("./models/user");
 const GooglePlusTokenStrategy = require("passport-google-plus-token");
+const facebookTokenStartegy =require("passport-facebook-token");
 
 
 // JSON WEB TOKENS STRATEGY
@@ -76,6 +77,37 @@ passport.use('googleToken', new GooglePlusTokenStrategy({
         const newUser = new userModel({
             method: "google", 
             google : {
+                id: profile.id,
+                email: profile.emails[0].value
+            }
+        });
+        await newUser.save();
+        done(null, newUser);
+    }
+    catch(error){
+        done(error, false, error.message);
+    };
+}));
+
+
+// Facebook OAuth Startegy
+passport.use("facebookToken", new facebookTokenStartegy({
+    clientID: config.oauth.facebook.clientID,
+    clientSecret: config.oauth.facebook.clinetSecret
+}, async(accessToken, reqfreshToken, profile, done) => {
+    try{
+        console.log(profile);
+        console.log(accessToken);
+        console.log(reqfreshToken);
+
+        const existingUser = await userModel.findOne({"facebook.id" : profile.id });
+        if(existingUser) {
+            return done(null, existingUser);
+        }
+
+        const newUser = new userModel({
+            method: "facebook",
+            facebook : {
                 id: profile.id,
                 email: profile.emails[0].value
             }
