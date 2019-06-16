@@ -50,32 +50,33 @@ const userSchema = new Schema({
 
 
 userSchema.pre('save', async function(next) {
-    try{
-        console.log("Entered");
-        if(this.method !== 'local') {
+
+    try {
+        console.log('entered');
+        if (this.method !== 'local') {
             next();
         }
 
-        // Generate a Salt
+        // Generate a salt
         const salt = await bcrypt.genSalt(10);
-        const passwordHash = await bcrypt.hash(thih.local.password, salt);
+        // Generate a password hash (salt + hash)
+        const passwordHash = await bcrypt.hash(this.local.password, salt);
+        // Re-assign hashed version over original, plain text password
         this.local.password = passwordHash;
+        console.log('exited');
         next();
-    }
-    catch(error) {
+    } catch(error) {
         next(error);
-    };
+    }
 });
 
 userSchema.methods.isValidPassword = async function(newPassword) {
-    try{
+    try {
         return await bcrypt.compare(newPassword, this.local.password);
-    }
-    catch(error){
+    } catch(error) {
         throw new Error(error);
     }
-}
-
+};
 
 // Create a Model
 const User = mongoose.model("user", userSchema);

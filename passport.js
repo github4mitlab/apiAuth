@@ -17,7 +17,7 @@ passport.use(new JwtStrategy({
         // Find User specific in token
         const user = await userModel.findById(payload.sub);
 
-        // If user don'nt exist, handle it
+        // If user don't exist, handle it
         if(!user) {
             return done(null, false);
         }
@@ -34,14 +34,15 @@ passport.use(new LocalStrategy({
 }, async (email, password, done ) => {
     try{
             //find the user given the email
-        const user = await userModel.findOne({email});
+        const user = await userModel.findOne({"local.email" : email });
 
         // If not, handle it!!
         if(!user) {
             return done(null, false);
-        };
+        }
 
         // Check if the password is correct
+        console.log(password);
         const isMatch = await user.isValidPasswrod(password);
         
         // If not, handle it
@@ -66,6 +67,21 @@ passport.use('googleToken', new GooglePlusTokenStrategy({
         console.log(profile);
         console.log(accessToken);
         console.log(reqfreshToken);
+
+        const existingUser = await userModel.findOne({"google.id" : profile.id });
+        if(existingUser) {
+            return done(null, existingUser);
+        }
+
+        const newUser = new userModel({
+            method: "google", 
+            google : {
+                id: profile.id,
+                email: profile.emails[0].value
+            }
+        });
+        await newUser.save();
+        done(null, newUser);
     }
     catch(error){
         done(error, false, error.message);

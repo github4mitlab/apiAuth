@@ -13,7 +13,7 @@ signToken = user => {
 };
 
 module.exports = {
-    singUp: async (req, res, next) => {
+    signUp: async (req, res, next) => {
         const { email, password } = req.body; 
         const foundUser = await userModel.findOne({"local.email" : email});
         if(foundUser) {
@@ -21,8 +21,11 @@ module.exports = {
         }
         //Create a new user
         const newUser = new userModel({ 
-            email : email, 
-            password : password
+            method : 'local',
+            local : {
+                email : email, 
+                password : password
+            }
         });
         await newUser.save();
 
@@ -35,7 +38,7 @@ module.exports = {
             user: token
         });
     },
-    singIn: async (req, res, next) => {
+    signIn: async (req, res, next) => {
 
         const token = signToken(req.user);
         console.log(token);
@@ -44,13 +47,18 @@ module.exports = {
            token: token
         });
     },
+
+
+
+
     secret: async (req, res, next) => {
         console.log("인증되었습니다.");
     },
 
     googleOauth: async(req, res, next) => {
         console.log('got here');
-        
+        const token = signToken(req.user);
+        res.status(200).json({ googleUserInfo : token });
     }
 
 };
